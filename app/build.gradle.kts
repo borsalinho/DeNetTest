@@ -53,7 +53,11 @@ android {
 dependencies {
 
     implementation(project(":domain"))
-    implementation(project(":data"))
+    implementation(project(":data")) // для даггера
+
+    //Dagger2
+    implementation("com.google.dagger:dagger:2.45")
+    kapt("com.google.dagger:dagger-compiler:2.45")
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")

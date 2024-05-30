@@ -46,9 +46,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         (applicationContext as App).appComponent.inject(this)
         setContent {
-
             MainScreen(myViewModel)
-
         }
     }
 }
@@ -58,12 +56,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(viewModel: MyViewModel) {
     val nodes by viewModel.nodes.collectAsState()
+    val parentNode by viewModel.parentNode.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-//                title = { Text(viewModel.parentNode.value!!.name) }
-                title = { Text("продам гараж") }
+                title = {
+                    Text(parentNode?.name ?: "Загрузка...")
+                }
             )
         }
     ) { padding ->

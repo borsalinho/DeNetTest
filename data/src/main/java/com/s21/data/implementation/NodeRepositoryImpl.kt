@@ -15,6 +15,7 @@ class NodeRepositoryImpl(private val nodeDao: NodeDao) : NodeRepository {
     override suspend fun getRootNode(): Node {
         return nodeDao.getRootNode().toNode() }
 
+
     override suspend fun getNodesByParentId(parentId: NodeId): List<Node> {
         return nodeDao.getNodesByParentId(parentId.id).map { it.toNode() }
     }

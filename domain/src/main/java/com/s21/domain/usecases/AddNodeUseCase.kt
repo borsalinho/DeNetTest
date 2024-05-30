@@ -5,6 +5,6 @@ import com.s21.domain.repository.NodeRepository
 
 class AddNodeUseCase(private val nodeRepository : NodeRepository) {
     suspend fun execute(parent: Node){
-        nodeRepository.addNode(parent = parent)
+        return nodeRepository.addNode(parent = parent)
     }
 }

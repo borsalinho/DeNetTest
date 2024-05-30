@@ -21,7 +21,6 @@ interface NodeDao {
     suspend fun getNodesByParentId(parentId: Long): List<NodeEntity>
 
 
-
 //    @Delete
 //    suspend fun deleteNode(node: NodeEntity)
 }

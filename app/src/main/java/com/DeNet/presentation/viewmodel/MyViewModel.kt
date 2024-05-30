@@ -1,8 +1,5 @@
 package com.DeNet.presentation.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.s21.domain.model.Node
@@ -27,8 +24,6 @@ class MyViewModel(
 
     private var _parentNode = MutableStateFlow<Node?>(null)
     val parentNode: StateFlow<Node?> get() = _parentNode
-
-//    private var _parentId : Long = 0L
 
     init {
         loadRootNode()
@@ -57,26 +52,24 @@ class MyViewModel(
     private fun loadRootNode() {
         viewModelScope.launch {
             try {
-                println("я загрузил существующую ноду")
-                val nodes = getRootNodeUseCases.execute()
-                _parentNode.value = nodes
-                loadNodesByParentId(NodeId(parentNode.value!!.id))
-            } catch (e: Exception) {
-                println("я создал первую")
-                val rootNode = Node(
-                    name = generateNodeName(),
-                    parentId = null
-                )
-                addNodeUseCase.execute(rootNode)
-                _parentNode.value = rootNode
 
+                _parentNode.value= getRootNodeUseCases.execute()
+                loadNodesByParentId(NodeId(parentNode.value!!.id))
+
+            } catch (e: Exception) {
+
+                addNodeUseCase.execute(
+                    Node(
+                        name = generateNodeName(),
+                        parentId = null
+                    )
+                )
+                _parentNode.value = getRootNodeUseCases.execute()
 
             }
 
-
         }
     }
-
 
     private fun generateNodeName(): String {
         val randomValue = System.currentTimeMillis().toString()

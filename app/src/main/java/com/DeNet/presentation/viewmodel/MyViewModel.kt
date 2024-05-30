@@ -6,6 +6,7 @@ import com.s21.domain.model.Node
 import com.s21.domain.model.NodeId
 
 import com.s21.domain.usecases.AddNodeUseCase
+import com.s21.domain.usecases.DeleteNodeUseCase
 import com.s21.domain.usecases.GetNodesByParentIdUseCase
 import com.s21.domain.usecases.GetRootNodeUseCases
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ import java.security.MessageDigest
 class MyViewModel(
     private val addNodeUseCase : AddNodeUseCase,
     private val getNodesByParentIdUseCase : GetNodesByParentIdUseCase,
-    private val getRootNodeUseCases : GetRootNodeUseCases
+    private val getRootNodeUseCases : GetRootNodeUseCases,
+    private val deleteNodeUseCase : DeleteNodeUseCase
 ) :  ViewModel() {
 
     private val _nodes = MutableStateFlow<List<Node>>(emptyList())
@@ -37,7 +39,6 @@ class MyViewModel(
                 parentId = parentNode.value!!.id
             )
             addNodeUseCase.execute(newNode)
-
             loadNodesByParentId(NodeId(parentNode.value!!.id))
         }
     }
@@ -68,6 +69,13 @@ class MyViewModel(
 
             }
 
+        }
+    }
+
+    fun deleteNode(node: Node){
+        viewModelScope.launch{
+            deleteNodeUseCase.execute(node = node)
+            loadNodesByParentId(NodeId(parentNode.value!!.id))
         }
     }
 

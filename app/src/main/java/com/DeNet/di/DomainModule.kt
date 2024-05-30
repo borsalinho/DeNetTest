@@ -2,6 +2,7 @@ package com.DeNet.di
 
 import com.s21.domain.repository.NodeRepository
 import com.s21.domain.usecases.AddNodeUseCase
+import com.s21.domain.usecases.DeleteNodeUseCase
 import com.s21.domain.usecases.GetNodesByParentIdUseCase
 import com.s21.domain.usecases.GetRootNodeUseCases
 import dagger.Module
@@ -29,6 +30,13 @@ class DomainModule{
     fun provideGetRootNodesUseCases(nodeRepository : NodeRepository) : GetRootNodeUseCases {
         return GetRootNodeUseCases(nodeRepository = nodeRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideDeleteNodeUseCase(nodeRepository : NodeRepository) : DeleteNodeUseCase {
+        return DeleteNodeUseCase(nodeRepository = nodeRepository)
+    }
+
 
 
 

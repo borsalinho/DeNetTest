@@ -1,4 +1,10 @@
 package com.s21.domain.usecases
 
-class AddNodeUseCase {
+import com.s21.domain.model.Node
+import com.s21.domain.repository.NodeRepository
+
+class AddNodeUseCase(private val nodeRepository : NodeRepository) {
+    suspend fun execute(parent: Node){
+        nodeRepository.addNode(parent = parent)
+    }
 }

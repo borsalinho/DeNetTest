@@ -19,6 +19,10 @@ class NodeRepositoryImpl(private val nodeDao: NodeDao) : NodeRepository {
         return nodeDao.getNodesByParentId(parentId = parentId.id).map { it.toNode() }
     }
 
+    override suspend fun getNodeById(nodeId: NodeId): Node {
+        return nodeDao.getNodeById(id = nodeId.id).toNode()
+    }
+
     override suspend fun deleteNode(node: Node) {
         nodeDao.deleteNode(node = node.toEntity())
     }

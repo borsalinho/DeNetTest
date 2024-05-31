@@ -1,5 +1,6 @@
 package com.DeNet.presentation.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.s21.domain.model.Node
@@ -7,6 +8,7 @@ import com.s21.domain.model.NodeId
 
 import com.s21.domain.usecases.AddNodeUseCase
 import com.s21.domain.usecases.DeleteNodeUseCase
+import com.s21.domain.usecases.GetNodeByIdUseCase
 import com.s21.domain.usecases.GetNodesByParentIdUseCase
 import com.s21.domain.usecases.GetRootNodeUseCases
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,10 +17,12 @@ import kotlinx.coroutines.launch
 import java.security.MessageDigest
 
 class MyViewModel(
+    val context: Context,
     private val addNodeUseCase : AddNodeUseCase,
     private val getNodesByParentIdUseCase : GetNodesByParentIdUseCase,
     private val getRootNodeUseCases : GetRootNodeUseCases,
-    private val deleteNodeUseCase : DeleteNodeUseCase
+    private val deleteNodeUseCase : DeleteNodeUseCase,
+    private val getNodeByIdUseCase : GetNodeByIdUseCase
 ) :  ViewModel() {
 
     private val _nodes = MutableStateFlow<List<Node>>(emptyList())
@@ -29,6 +33,22 @@ class MyViewModel(
 
     init {
         loadRootNode()
+    }
+
+    fun openNode(node : Node){
+        viewModelScope.launch {
+            _parentNode.value = node
+            loadNodesByParentId(NodeId(parentNode.value!!.id))
+        }
+    }
+
+    fun goBack(){
+        viewModelScope.launch {
+            _parentNode.value = getNodeByIdUseCase.execute(
+                NodeId(parentNode.value!!.parentId!!)
+            )
+            loadNodesByParentId(NodeId(parentNode.value!!.id))
+        }
     }
 
     fun addNode() {

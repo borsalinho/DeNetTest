@@ -21,6 +21,9 @@ interface NodeDao {
     @Query("SELECT * FROM nodes WHERE parentId = :parentId")
     suspend fun getNodesByParentId(parentId: Long): List<NodeEntity>
 
+    @Query("SELECT * FROM nodes WHERE id = :id")
+    suspend fun getNodeById(id: Long) : NodeEntity
+
     @Delete
     suspend fun deleteNode(node: NodeEntity)
 }

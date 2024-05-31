@@ -4,6 +4,7 @@ import android.content.Context
 import com.DeNet.presentation.viewmodel.MyViewModel
 import com.s21.domain.usecases.AddNodeUseCase
 import com.s21.domain.usecases.DeleteNodeUseCase
+import com.s21.domain.usecases.GetNodeByIdUseCase
 import com.s21.domain.usecases.GetNodesByParentIdUseCase
 import com.s21.domain.usecases.GetRootNodeUseCases
 
@@ -20,16 +21,20 @@ class AppModule(private val context: Context) {
     @Provides
     @Singleton
     fun provideMyViewModel(
+        context: Context,
         addNodeUseCase : AddNodeUseCase,
         getNodesByParentIdUseCase : GetNodesByParentIdUseCase,
         getRootNodeUseCases : GetRootNodeUseCases,
-        deleteNodeUseCase : DeleteNodeUseCase
+        deleteNodeUseCase : DeleteNodeUseCase,
+        getNodeByIdUseCase : GetNodeByIdUseCase
     ) : MyViewModel{
         return MyViewModel(
+            context = context,
             addNodeUseCase = addNodeUseCase,
             getNodesByParentIdUseCase = getNodesByParentIdUseCase,
             getRootNodeUseCases = getRootNodeUseCases,
-            deleteNodeUseCase = deleteNodeUseCase
+            deleteNodeUseCase = deleteNodeUseCase,
+            getNodeByIdUseCase = getNodeByIdUseCase
         )
     }
 }

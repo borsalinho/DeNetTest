@@ -12,8 +12,14 @@ class NodeRepositoryImpl(private val nodeDao: NodeDao) : NodeRepository {
     override suspend fun addNode(node: Node) {
         nodeDao.insertNode(node = node.toEntity())
     }
+    override suspend fun getNode(nodeId : NodeId): Node {
+        return nodeDao.getNode(nodeId = nodeId.id).toNode()
+    }
+
     override suspend fun getRootNode(): Node {
-        return nodeDao.getRootNode().toNode() }
+        return nodeDao.getRootNode().toNode()
+    }
+
 
     override suspend fun getNodesByParentId(parentId: NodeId): List<Node> {
         return nodeDao.getNodesByParentId(parentId = parentId.id).map { it.toNode() }

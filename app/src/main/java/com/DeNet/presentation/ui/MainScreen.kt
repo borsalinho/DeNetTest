@@ -41,14 +41,14 @@ import com.DeNet.presentation.viewmodel.MyViewModel
 fun MainScreen(viewModel: MyViewModel) {
     val nodes by viewModel.nodes.collectAsState()
     val parentNode by viewModel.parentNode.collectAsState()
-
+    val isDataBSLoaded by viewModel.isDataBSLoaded.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text= parentNode?.name ?: "Загрузка...",
+                        text= parentNode?.name ?: "Загрузка имени...",
                         fontSize = 16.sp,
                     )
                 }
@@ -80,32 +80,40 @@ fun MainScreen(viewModel: MyViewModel) {
                     }
                 }
             }
+            if (isDataBSLoaded){
+                IconButton(
+                    onClick = {
+                        if (viewModel.parentNode.value?.parentId != null) {
+                            viewModel.goBack()
+                        } else {
+                            viewModel.showToastOnce("Конечная")
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp)
+                        .size(56.dp)
+                        .background (Color.LightGray,shape = CircleShape),
+                ) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+                IconButton(
+                    onClick = { viewModel.addNode() },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                        .size(56.dp)
+                        .background(Color.LightGray, shape = CircleShape)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Node")
+                }
+            } else {
+                Text(
+                    text= parentNode?.name ?: "Что-то пошло не так... закройте приложение",
+                    fontSize = 16.sp,
+                    modifier = Modifier.align(Alignment.Center)
 
-            IconButton(
-                onClick = {
-                    if (viewModel.parentNode.value?.parentId != null) {
-                        viewModel.goBack()
-                    } else {
-                        viewModel.showToastOnce("Конечная")
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(16.dp)
-                    .size(56.dp)
-                    .background (Color.LightGray,shape = CircleShape),
-            ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-            }
-            IconButton(
-                onClick = { viewModel.addNode() },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .size(56.dp)
-                    .background(Color.LightGray, shape = CircleShape)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Node")
+                )
             }
         }
     }

@@ -6,8 +6,7 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
+import com.DeNet.presentation.preferencemanager.PreferenceManager
 import com.s21.domain.model.Node
 import com.s21.domain.model.NodeId
 
@@ -15,7 +14,8 @@ import com.s21.domain.usecases.AddNodeUseCase
 import com.s21.domain.usecases.DeleteNodeUseCase
 import com.s21.domain.usecases.GetNodeByIdUseCase
 import com.s21.domain.usecases.GetNodesByParentIdUseCase
-import com.s21.domain.usecases.GetRootNodeUseCases
+import com.s21.domain.usecases.GetNodeUseCases
+import com.s21.domain.usecases.GetRootNodeUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,9 +25,12 @@ class MyViewModel(
     val context: Context,
     private val addNodeUseCase : AddNodeUseCase,
     private val getNodesByParentIdUseCase : GetNodesByParentIdUseCase,
-    private val getRootNodeUseCases : GetRootNodeUseCases,
+    private val getNodeUseCases : GetNodeUseCases,
     private val deleteNodeUseCase : DeleteNodeUseCase,
-    private val getNodeByIdUseCase : GetNodeByIdUseCase
+    private val getNodeByIdUseCase : GetNodeByIdUseCase,
+    private val preferenceManager : PreferenceManager,
+    private val getRootNodeUseCase : GetRootNodeUseCase
+
 ) :  ViewModel() {
 
     private val _nodes = MutableStateFlow<List<Node>>(emptyList())
@@ -36,9 +39,10 @@ class MyViewModel(
     private var _parentNode = MutableStateFlow<Node?>(null)
     val parentNode: StateFlow<Node?> get() = _parentNode
 
+    private val _isDataBSLoaded = MutableStateFlow(false)
+    val isDataBSLoaded: StateFlow<Boolean> get() = _isDataBSLoaded
+
     private var isToastShowing = false
-
-
     init {
         loadRootNode()
     }
@@ -47,11 +51,14 @@ class MyViewModel(
         viewModelScope.launch {
             _parentNode.value = node
             loadNodesByParentId(NodeId(parentNode.value!!.id))
+            preferenceManager.saveNodeId(node.id)
         }
     }
 
     fun goBack(){
+
         viewModelScope.launch {
+            preferenceManager.saveNodeId(parentNode.value!!.parentId!!)
             _parentNode.value = getNodeByIdUseCase.execute(
                 NodeId(parentNode.value!!.parentId!!)
             )
@@ -80,16 +87,25 @@ class MyViewModel(
     private fun loadRootNode() {
         viewModelScope.launch {
             try {
-                _parentNode.value = getRootNodeUseCases.execute()
-                loadNodesByParentId(NodeId(parentNode.value!!.id))
-            } catch (e: NoSuchElementException) {
-                addNodeUseCase.execute(
-                    Node(
+                val nodeId = preferenceManager.getNodeId()
+                if (nodeId != -1L){
+                    _parentNode.value = getNodeUseCases.execute(NodeId(nodeId))
+                    loadNodesByParentId(NodeId(parentNode.value!!.id))
+                } else {
+                    val newNode = Node(
                         name = generateNodeName(),
                         parentId = null
                     )
-                )
-                _parentNode.value = getRootNodeUseCases.execute()
+                    addNodeUseCase.execute(newNode)
+                    preferenceManager.saveNodeId(
+                        getRootNodeUseCase.execute().id
+                    )
+                    val newNodeId = preferenceManager.getNodeId()
+                    _parentNode.value = getNodeUseCases.execute(
+                        NodeId(newNodeId)
+                    )
+                }
+                _isDataBSLoaded.value = true
             } catch (e: Exception) {
                 showToastOnce("Не удалось загрузить с ДБ")
             }

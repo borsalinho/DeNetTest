@@ -1,61 +1,39 @@
-package com.DeNet
+package com.DeNet.presentation.ui
 
 import android.annotation.SuppressLint
-import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.DeNet.app.App
+import androidx.compose.ui.unit.sp
 import com.DeNet.presentation.viewmodel.MyViewModel
-import com.s21.domain.model.Node
-import javax.inject.Inject
-
-
-class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var myViewModel: MyViewModel
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        (applicationContext as App).appComponent.inject(this)
-        setContent {
-
-            MainScreen(myViewModel)
-        }
-    }
-}
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,16 +47,37 @@ fun MainScreen(viewModel: MyViewModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(parentNode?.name ?: "Загрузка...")
+                    Text(
+                        text= parentNode?.name ?: "Загрузка...",
+                        fontSize = 16.sp,
+                    )
                 }
             )
         }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(nodes) { node ->
-                    NodeItem(node, viewModel::openNode, viewModel::deleteNode)
+            Column(modifier = Modifier.fillMaxSize()) {
+                Divider(
+                    color = Color.Black,
+                    thickness = 2.dp,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                val lazyListState = rememberLazyListState()
+                var displayedItems by remember { mutableStateOf(20) }
+
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    itemsIndexed(nodes.take(displayedItems)) { index, node ->
+                        if (index >= displayedItems - 1 && index < nodes.size - 1) {
+                            LaunchedEffect(Unit) {
+                                displayedItems += 20
+                            }
+                        }
+                        NodeItem(node, viewModel::openNode, viewModel::deleteNode)
+                    }
                 }
             }
 
@@ -87,11 +86,7 @@ fun MainScreen(viewModel: MyViewModel) {
                     if (viewModel.parentNode.value?.parentId != null) {
                         viewModel.goBack()
                     } else {
-                        Toast.makeText(
-                            viewModel.context,
-                            "Конечная!!!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        viewModel.showToastOnce("Конечная")
                     }
                 },
                 modifier = Modifier
@@ -112,25 +107,6 @@ fun MainScreen(viewModel: MyViewModel) {
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Node")
             }
-        }
-    }
-}
-@Composable
-fun NodeItem(node: Node, onNodeClick: (Node) -> Unit, onDeleteClick: (Node) -> Unit) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp)) {
-        Text(
-            text = node.name,
-            modifier = Modifier
-                .clickable { onNodeClick(node) }
-                .align(Alignment.CenterStart)
-        )
-        IconButton(
-            onClick = { onDeleteClick(node) },
-            modifier = Modifier.align(Alignment.CenterEnd)
-        ) {
-            Icon(Icons.Default.Delete, contentDescription = "Delete Node")
         }
     }
 }

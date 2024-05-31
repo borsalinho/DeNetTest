@@ -7,6 +7,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 import com.s21.data.storage.model.NodeEntity
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 
 @Dao
@@ -15,7 +17,7 @@ interface NodeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNode(node: NodeEntity)
 
-    @Query("SELECT * FROM nodes WHERE parentId IS NULL") // пусть пока будет так
+    @Query("SELECT * FROM nodes WHERE parentId IS NULL")
     suspend fun getRootNode(): NodeEntity
 
     @Query("SELECT * FROM nodes WHERE parentId = :parentId")
@@ -26,4 +28,9 @@ interface NodeDao {
 
     @Delete
     suspend fun deleteNode(node: NodeEntity)
+
+    @Query("SELECT * FROM nodes WHERE parentId = :parentId")
+    suspend fun getAllDescendants(parentId: Long): List<NodeEntity>
+
+
 }

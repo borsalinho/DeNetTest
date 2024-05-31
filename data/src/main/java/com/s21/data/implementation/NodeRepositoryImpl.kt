@@ -24,6 +24,10 @@ class NodeRepositoryImpl(private val nodeDao: NodeDao) : NodeRepository {
     }
 
     override suspend fun deleteNode(node: Node) {
+        val descendants = nodeDao.getAllDescendants(node.id)
+        for (descendant in descendants) {
+            deleteNode(descendant.toNode())
+        }
         nodeDao.deleteNode(node = node.toEntity())
     }
 }

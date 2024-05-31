@@ -7,7 +7,6 @@ fun NodeEntity.toNode(): Node {
     return Node(
         id = this.id,
         name = this.name,
-//        children = this.children ,
         parentId = this.parentId
     )
 }

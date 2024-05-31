@@ -1,8 +1,13 @@
 package com.DeNet.presentation.viewmodel
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.s21.domain.model.Node
 import com.s21.domain.model.NodeId
 
@@ -31,6 +36,9 @@ class MyViewModel(
     private var _parentNode = MutableStateFlow<Node?>(null)
     val parentNode: StateFlow<Node?> get() = _parentNode
 
+    private var isToastShowing = false
+
+
     init {
         loadRootNode()
     }
@@ -53,7 +61,6 @@ class MyViewModel(
 
     fun addNode() {
         viewModelScope.launch {
-
             val newNode = Node(
                 name = generateNodeName(),
                 parentId = parentNode.value!!.id
@@ -73,12 +80,9 @@ class MyViewModel(
     private fun loadRootNode() {
         viewModelScope.launch {
             try {
-
-                _parentNode.value= getRootNodeUseCases.execute()
+                _parentNode.value = getRootNodeUseCases.execute()
                 loadNodesByParentId(NodeId(parentNode.value!!.id))
-
-            } catch (e: Exception) {
-
+            } catch (e: NoSuchElementException) {
                 addNodeUseCase.execute(
                     Node(
                         name = generateNodeName(),
@@ -86,9 +90,9 @@ class MyViewModel(
                     )
                 )
                 _parentNode.value = getRootNodeUseCases.execute()
-
+            } catch (e: Exception) {
+                showToastOnce("Не удалось загрузить с ДБ")
             }
-
         }
     }
 
@@ -96,6 +100,16 @@ class MyViewModel(
         viewModelScope.launch{
             deleteNodeUseCase.execute(node = node)
             loadNodesByParentId(NodeId(parentNode.value!!.id))
+        }
+    }
+
+    fun showToastOnce(message: String) {
+        if (!isToastShowing) {
+            isToastShowing = true
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            Handler(Looper.getMainLooper()).postDelayed({
+                isToastShowing = false
+            }, Toast.LENGTH_SHORT + 2000L)
         }
     }
 

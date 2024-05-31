@@ -1,4 +1,4 @@
-package com.DeNet.presentation
+package com.DeNet.presentation.ui
 
 
 import android.os.Bundle

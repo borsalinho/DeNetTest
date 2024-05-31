@@ -1,6 +1,6 @@
 package com.DeNet.di
 
-import com.DeNet.presentation.MainActivity
+import com.DeNet.presentation.ui.MainActivity
 import dagger.Component
 import javax.inject.Singleton
 
